@@ -179,3 +179,15 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Wyscout raw data — not committed, see README for how to obtain
+teams.json
+players.json
+matches_England.json
+events_England.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated outputs (optional — keep if you want these tracked instead)
+*.csv
