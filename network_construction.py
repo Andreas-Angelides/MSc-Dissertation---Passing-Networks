@@ -18,7 +18,7 @@ ROLE_NODES = [
 
 def build_episode_network(episode, match_action_events, role_map):
     """
-    Builds a directed, weighted role-based passing network for one possession episode. The receiver of each pass if inferred as the next action event by the same team within the episode; a pass with no following action event (i.e. the last event in the episode) is excluded, since it has no valid same-team receiver.
+    Builds a directed, weighted role-based passing network for one possession episode. The receiver of each pass if inferred as the next action event by the same team within the episode. Passes with no following event, or where the same player performs both the pass and the next action are excluded.
     """
     ep_events = match_action_events[
     (match_action_events['matchPeriod'] == episode['period']) & 
@@ -31,6 +31,9 @@ def build_episode_network(episode, match_action_events, role_map):
 
     for i, row in ep_events.iterrows():
         if row['eventName'] != 'Pass' or i + 1 >= len(ep_events):
+            continue
+        next_row = ep_events.iloc[i + 1]
+        if row['playerId'] == next_row['playerId']:
             continue
         passer_role = role_map.get(row['playerId'])
         receiver_role = role_map.get(ep_events.iloc[i + 1]['playerId'])
@@ -75,4 +78,60 @@ def build_season_networks(events_df, valid_episodes_df, role_assignments_df, tea
 
     vector_matrix = np.array(vectors)
     return networks, vector_matrix, episode_ids
-    
+
+DEPTH = {
+    'Goalkeeper': 0,
+    'Defence-Left':1, 'Defence-CentreLeft': 1, 'Defence-CentreRight': 1, 'Defence-Right': 1, 'Midfield-Left': 2, 'Midfield-Centre': 2, 'Midfield-Right': 2, 'Attack-Left': 3, 'Attack-Centre': 3, 'Attack-Right': 3,
+}
+DEPTH_ARR = np.array([DEPTH[r] for r in ROLE_NODES])
+
+def network_to_summary_features(G):
+    """
+    Converts a role-based network into a compact set of interpretable summary features, rather than the full 121-dim raw adjacency vector: out-degree and in-degree share per role (how much each roles contributes to/receives from ball circulation), overall verticality (average forward progression per pass, weighted by depth), density (proportion of possible role-pairs actually used), and goalkeeper involvement shape.
+    """
+    A = nx.to_numpy_array(G, nodelist=ROLE_NODES, weight='weight')
+    n = len(ROLE_NODES)
+    total = A.sum()
+    if total == 0:
+        return np.zeros(2 * n + 3)
+
+    out_deg = A.sum(axis=1) / total
+    in_deg = A.sum(axis=0) / total
+
+    i_idx, j_idx =np.meshgrid(np.arange(n), np.arange(n), indexing='ij')
+    depth_change = DEPTH_ARR[j_idx] - DEPTH_ARR[i_idx]
+    verticality = (A * depth_change).sum() / total
+
+    density = (A>0).sum() / (n * n)
+    gk_shape = (A[0, :].sum() + A[:, 0].sum()) / total
+
+    return np.concatenate([out_deg, in_deg, [verticality, density, gk_shape]])
+
+
+def episode_pass_quality(episode, match_passes):
+    """
+    Computes two pass-quality features for one episode: overall pass accuracy, and the proportion of passes that are "progressive" (advance the ball by at least 25% of the remaining distance to the opponent's goal - a standard definition in football analytics).
+    """
+    ep_passes = match_passes[
+    (match_passes['matchPeriod'] == episode['period']) &
+    (match_passes['eventSec'] >= episode['start']) & 
+    (match_passes['eventSec'] <= episode['end'])
+    ]
+    if len(ep_passes) == 0:
+        return 0.0, 0.0
+
+    def has_tag(tags, tag_id):
+        return any(t.get('id') == tag_id for t in tags) if isinstance(tags, list) else False
+
+    def is_progressive(pos):
+        if not isinstance(pos, list) or len(pos) < 2:
+            return False
+        start_x, end_x = pos[0]['x'], pos[1]['x']
+        dist_start = 100 - start_x
+        if dist_start <= 0:
+            return False
+        return (100 - end_x) <= 0.75 * dist_start
+
+    accuracy = ep_passes['tags'].apply(lambda t: has_tag(t, 1801)).mean()
+    progressive_pct = ep_passes['positions'].apply(is_progressive).mean()
+    return accuracy, progressive_pct
