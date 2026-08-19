@@ -2,7 +2,19 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
-#What this does, for every match, it splits play into time segments at each substitution, and within each segment, matches the 10 outfield players' average positions to 10 fixed reference role slots using optimal 1-to-1 assignment (so that no two players share the same role). The goalkeeper is handled separately.
+#For every match, this module splits play into time segments at each
+#substitution. Each segment's roster of 10 outfield players is built
+#directly from the authoritative lineup/substitution log (not inferred
+#from which players happen to have events in that time window - this
+#was found necessary to avoid a rare but real bug where a substitute's
+#event, logged a few seconds before their officially recorded entry time,
+#could silently displace a legitimate starter). Missing position data for
+#a roster player in a short segment is filled in from the nearest other
+#segment where they do have data. Each segment's 10 outfield players are
+#then matched to 10 fixed reference role slots using the Hungarian
+#algorithm for optimal one-to-one assignment (guaranteeing no two players
+#share a role), while the goalkeeper is identified directly from the
+#player reference table rather than by position.
 
 REFERENCE_TEMPLATE = {
     'Defence-Left': (0.10, 0.10),

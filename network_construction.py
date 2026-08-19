@@ -87,7 +87,7 @@ DEPTH_ARR = np.array([DEPTH[r] for r in ROLE_NODES])
 
 def network_to_summary_features(G):
     """
-    Converts a role-based network into a compact set of interpretable summary features, rather than the full 121-dim raw adjacency vector: out-degree and in-degree share per role (how much each roles contributes to/receives from ball circulation), overall verticality (average forward progression per pass, weighted by depth), density (proportion of possible role-pairs actually used), and goalkeeper involvement shape.
+    Converts a role-based network into a compact set of interpretable summary features, rather than the full 121-dim raw adjacency vector: out-degree and in-degree share per role (how much each role contributes to/receives from ball circulation), overall verticality (average forward progression per pass, weighted by depth), density (proportion of possible role-pairs actually used), and goalkeeper involvement share.
     """
     A = nx.to_numpy_array(G, nodelist=ROLE_NODES, weight='weight')
     n = len(ROLE_NODES)
@@ -103,9 +103,9 @@ def network_to_summary_features(G):
     verticality = (A * depth_change).sum() / total
 
     density = (A>0).sum() / (n * n)
-    gk_shape = (A[0, :].sum() + A[:, 0].sum()) / total
+    gk_share = (A[0, :].sum() + A[:, 0].sum()) / total
 
-    return np.concatenate([out_deg, in_deg, [verticality, density, gk_shape]])
+    return np.concatenate([out_deg, in_deg, [verticality, density, gk_share]])
 
 
 def episode_pass_quality(episode, match_passes):
