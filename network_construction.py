@@ -135,3 +135,33 @@ def episode_pass_quality(episode, match_passes):
     accuracy = ep_passes['tags'].apply(lambda t: has_tag(t, 1801)).mean()
     progressive_pct = ep_passes['positions'].apply(is_progressive).mean()
     return accuracy, progressive_pct
+
+
+def episode_tactical_features(episode, match_passes, structural_features):
+    """
+    Additional tactical features suggested by supervisor feedback:
+    the proportion of passes originating in the middle and attacking thirds of the pitch (defensive third is impied by the other two and ommited to avoid redundancy), the total number of passes in the episode, and the number of distinct roles involved as either a passer or receiver.
+    """
+    ep_passes = match_passes[
+    (match_passes['matchPeriod'] == episode['period']) &
+    (match_passes['eventSec'] >= episode['start']) &
+    (match_passes['eventSec'] <= episode['end'])
+    ]
+    n_passes = len(ep_passes)
+    if n_passes == 0:
+        return {'pct_mid_third': 0, 'pct_att_third': 0, 'n_passes_total': 0, 'n_roles_involved': 0}
+
+    def start_x(pos):
+        if isinstance(pos, list) and len(pos) > 0:
+            return pos[0]['x']
+        return None
+
+    xs = ep_passes['positions'].apply(start_x).dropna()
+    pct_mid = ((xs >= 33.33) & (xs < 66.67)).mean()
+    pct_att = (xs >= 66.67).mean()
+
+    out_in = np.array(structural_features[:22]).reshape(2, 11)
+    n_roles_involved = int(((out_in[0] + out_in[1]) > 0).sum())
+
+    return {'pct_mid_third': pct_mid, 'pct_att_third': pct_att,
+    'n_passes_total': n_passes, 'n_roles_involved': n_roles_involved}
