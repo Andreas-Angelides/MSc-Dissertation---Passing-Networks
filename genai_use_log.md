@@ -1,14 +1,15 @@
 # GenAI Use Log — Dissertation Project
 
-**Purpose:** Running factual record of how Claude (Anthropic) was used throughout
-this project, organized by the categories required for the mandatory GenAI
-chapter (per module leader email, [date]). This is raw source material —
-the actual chapter should be drafted in first person, in your own reflective
-voice, using this log as evidence. Update this after each working session.
+**Purpose:** A factual record of how Claude (Anthropic) was used throughout
+this project, kept while the work was being done. It was the source material
+for Chapter 5 (Use of Generative AI) of the dissertation, which was written in
+my own words. The sections below follow the same headings as Chapter 5
+(5.1–5.7), so each part of the log can be read alongside the matching section
+of the report.
 
 ---
 
-## 1. Literature Review Support
+## 5.1 Literature Review Support
 
 - Reviewed three academic papers already sourced independently and uploaded
   to project knowledge (Pappalardo et al. 2019 dataset paper; Aalbers & Van
@@ -22,11 +23,10 @@ voice, using this log as evidence. Update this after each working session.
   UMAP paper), Claude was asked to verify each citation was real via web
   search before it was accepted for inclusion — exact title, authors, year,
   and venue were checked against actual search results, not generated from
-  memory. [Note: still need to independently read and critically engage with
-  each of these papers yourself before citing — verification confirms a
-  citation is real, not that you've engaged with its content.]
+  memory. I then read each of these papers myself before citing them, and
+  checked every citation (title, authors, year, venue) on Google Scholar.
 
-## 2. Objective Setting and Scope Decisions
+## 5.2 Objective-Setting and Scope Decisions
 
 - Discussed whether "one team, one season" (Manchester City, 2017/18 Premier
   League) was sufficient scope given the 9,000-12,000 word budget. Claude
@@ -39,8 +39,12 @@ voice, using this log as evidence. Update this after each working session.
   gave reasoning for Man City (tactical variety, data availability, fit to
   RQ1/RQ2) and explicitly flagged a limitation (32W/4D/2L record giving low
   outcome variance for RQ3) before I confirmed the choice.
+- Outcomes (RQ3): the null result was accepted as a genuine finding, in line
+  with the limitation flagged when Manchester City was chosen, rather than
+  searching for an alternative analysis that would give a more favourable
+  result.
 
-## 3. Evaluating Methodological Choices
+## 5.3 Evaluating Methodological Choices
 
 Two major methodological decisions were developed iteratively, with Claude
 proposing an approach, testing it computationally against the real dataset,
@@ -85,12 +89,32 @@ or discarding it:
   segment boundary.
 - I reviewed each iteration's quantitative results and made the calls to
   accept, reject, or request a redesign at each stage; Claude did not choose
-  the final method unilaterally.
+  the final method unilaterally. I did not accept the first working version
+  of any method: when the zone grid failed, and again when the first
+  Hungarian version produced implausible assignments, I asked whether a
+  fundamentally different approach would be better rather than accepting a
+  patch.
 
-## 4. Design and Technical Decisions
+**Clustering (RQ1):**
+- The first attempt, clustering flattened adjacency vectors of individual
+  episodes, showed no meaningful structure. This was treated as a signal to
+  keep investigating rather than a result to work around.
+- At that point I seriously considered more drastic changes (a different
+  research question, team, league or season) before deciding that continuing
+  with the existing approach was the better option, given the time left and
+  whether the data actually contained structure the representation was
+  missing.
+- Structure only appeared after tolerant episode merging and the addition of
+  pass-quality and tactical features. The final two-cluster solution
+  (silhouette 0.208) was checked against real match examples, not just
+  cluster averages.
 
-- Overall project/folder structure (data/raw, src modules, notebooks)
-  suggested by Claude, adopted after review.
+## 5.4 Design and Technical Decisions
+
+- Claude suggested a project structure with separate folders for data,
+  `src` modules and notebooks. In practice I kept all files in one flat
+  folder, which is the layout used in this repository (see the
+  `ModuleNotFoundError` in Section 5.5).
 - Decision to keep events data as both-teams-per-match (not filtered to only
   City's own events) was made jointly, to preserve context needed for
   possession-episode segmentation.
@@ -99,13 +123,20 @@ or discarding it:
   guidance document, which I uploaded and Claude read directly to extract
   the actual formatting/structural requirements (word count, chapter
   headings, declaration wording) rather than relying on general assumptions.
+- LaTeX bibliography: when citations rendered as plain text after the initial
+  setup, I checked my own preamble and found the missing package option
+  myself.
+- A separate LaTeX compilation failure was caused by an accidentally deleted
+  preamble (missing `\documentclass`/`\usepackage` lines above
+  `\begin{document}`).
 
-## 5. Code Development and Testing
+## 5.5 Code Development and Testing
 
 - I set an explicit preference early on: Claude provides code as plain
   blocks in chat with block-level (not line-by-line) explanations, and I
   type/paste it into my own notebook and `.py` files myself, rather than
-  Claude generating notebook files directly. This was maintained throughout.
+  Claude generating notebook files directly. This was maintained throughout,
+  so that I understood each block before using it.
 - Before giving me any code, Claude generally ran it independently first (in
   a separate sandboxed environment) against copies of my actual data, to
   verify it worked and to cross-check outputs against known real-world facts
@@ -125,10 +156,8 @@ or discarding it:
     `'substitutions'` dictionary key, `golakeepers` vs `goalkeepers` variable
     name) — identified by careful line-by-line comparison against the
     intended source.
-  - A LaTeX compilation failure caused by an accidentally deleted preamble
-    (missing `\documentclass`/`\usepackage` lines above `\begin{document}`).
 
-## 6. How Prompts Were Constructed
+## 5.6 How Prompts Were Constructed
 
 - Prompts were generally natural, conversational requests rather than
   engineered/structured prompts (e.g. "let's start step by step", "explain
@@ -142,10 +171,10 @@ or discarding it:
   than paraphrasing the problem, which allowed for precise diagnosis rather
   than guesswork.
 
-## 7. How Outputs Were Evaluated Before Use
+## 5.7 How Outputs Were Evaluated Before Use
 
 - Every proposed methodological change was tested against the real dataset
-  and the quantitative result reviewed before acceptance (see Section 3) —
+  and the quantitative result reviewed before acceptance (see Section 5.3) —
   nothing was accepted purely on the basis of Claude's explanation.
 - Factual/statistical claims were spot-checked against independently
   verifiable sources: e.g. cross-checking derived statistics (season pass
@@ -156,29 +185,26 @@ or discarding it:
   knowledge (e.g. the first Hungarian-matching attempt assigning defensive
   midfielders to centre-back slots), this was caught by inspecting the
   output against known player positions, not accepted at face value.
-- [Add specific examples here as they arise in remaining project stages —
-  e.g. clustering results, dynamics analysis, outcomes analysis.]
-
-## 8. Decisions Not to Follow Claude's Suggestions / Independent Judgement
-
-- [To complete: note any cases where a Claude suggestion was declined or
-  substantially altered rather than accepted — e.g. any point where you
-  chose a different approach than the one initially proposed. Worth
-  populating this honestly, since the reflection should show independent
-  critical judgement, not passive acceptance.]
+- Report review: Claude was asked to read the full draft report and check it
+  against the module guidance for consistency, typos and structure. Each
+  suggested fix was checked and applied by me in Overleaf, and each new
+  version was re-checked.
+- Numbers were cross-checked between chapters and against the notebook
+  outputs. For example, a gap between 1,333 retained episodes (Section 3.2)
+  and 1,329 clustered episodes (Section 4.2) was traced to the notebook cell
+  that skips episodes with an entirely empty network, and an explanation was
+  added to Section 3.5.
 
 ---
 
 ## Chronological Session Notes
 
-*(Brief dated entries — expand as the project continues)*
-
 - **Project setup & data sourcing:** Guidance on obtaining the Wyscout
   dataset, project folder structure, and a Python script (written jointly)
   to filter the large `events_England.json` file down to Man City's matches
   to fit upload size constraints.
-- **Possession-episode segmentation:** See Section 3.
-- **Role assignment:** See Section 3.
+- **Possession-episode segmentation:** See Section 5.3.
+- **Role assignment:** See Section 5.3.
 - **GitHub repository setup:** Guidance on setting up GitHub Desktop and
   structuring the repository (`.gitignore` to exclude raw data files) to
   serve as the verifiable progress log recommended in the module leader's
@@ -186,3 +212,5 @@ or discarding it:
 - **Overleaf/LaTeX setup:** Assistance building the document skeleton to
   match the official module guidance document's formatting and structural
   requirements.
+- **Clustering, dynamics and outcomes (RQ1-RQ3):** See Sections 5.2 and 5.3.
+- **Report review:** See Section 5.7.
