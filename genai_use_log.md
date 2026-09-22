@@ -83,10 +83,8 @@ or discarding it:
 - Diagnosed as a coordinate-scale mismatch (template assumed full 0-100
   pitch spread; real averaged positions cluster narrower). Fixed via
   per-segment min-max normalisation of player positions before matching.
-- Final validated result: 1,504 role assignments across the season, 1
-  collision out of 143 segments (99.3% collision-free), the single
-  exception attributable to a rare goalkeeper substitution near a
-  segment boundary.
+- Intermediate result: 1,504 role assignments across the season, 1 collision out of 143 segments, attributable to a rare goalkeeper substitution near a segment boundary.
+-Final result, after building each segment's roster from the official lineup and substitution record and filling missing positions from the nearest segment: 1,582 role assignments, 0 collisions out of 144 segments.
 - I reviewed each iteration's quantitative results and made the calls to
   accept, reject, or request a redesign at each stage; Claude did not choose
   the final method unilaterally. I did not accept the first working version
